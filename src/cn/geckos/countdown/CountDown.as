@@ -45,7 +45,7 @@ public class CountDown{
     public function get millisecondCount():Number {
         return Util.getMillisecondCount(destination, ref);
     }
-    
+     
     public function get dayVo():DateVo {
         var vo:DateVo = new DateVo();
         

@@ -7,8 +7,8 @@ public class DateVo {
     public var seconds:Number;
     public var milliseconds:Number;
     
-    public function DateVo(days:Number=NaN, hours:Number=NaN, minutes:Number=NaN,
-                           seconds:Number=NaN, milliseconds:Number=NaN){
+    public function DateVo(days:Number=0, hours:Number=0, minutes:Number=0,
+                           seconds:Number=0, milliseconds:Number=0){
         this.days = days;
         this.hours = hours;
         this.minutes = minutes;
@@ -17,7 +17,6 @@ public class DateVo {
     }
     
     public function value(v:*):* {
-        
         if(v==null || v==undefined)
             return ''
         return v;

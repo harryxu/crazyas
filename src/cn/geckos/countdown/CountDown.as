@@ -15,11 +15,26 @@ public class CountDown{
         return Math.ceil(Util.getDayCount(destination, ref));
     }
     
+    public function get hourCount():Number {
+        return Math.ceil(Util.getHourCount(destination, ref));
+    }
+    
+    public function get minuteCount():Number {
+        return Math.ceil(Util.getMillisecondCount(destination, ref));
+    }
+    
+    public function get secondCount():Number {
+        return Math.ceil(Util.getSecondCount(destination, ref));
+    }
+    
+    public function get millisecondCount():Number {
+        return Util.getMillisecondCount(destination, ref);
+    }
+    
     public function get dayVo():DateVo {
         var vo:DateVo = new DateVo();
         
         var d:Number = Math.floor(Util.getDayCount(destination, ref));
-        
         vo.days = Math.floor(Util.getDayCount(destination, ref));
         
         var m:Number = millisecondCount - vo.days * Const.MILLISECONDS_PER_DAY;
@@ -36,20 +51,43 @@ public class CountDown{
         return vo;
     }
     
-    public function get hourCount():Number {
-        return Math.ceil(Util.getHourCount(destination, ref));
+    public function get hourVo():DateVo {
+        var vo:DateVo = new DateVo();
+        
+        vo.hours = Math.floor(Util.getHourCount(destination, ref));
+        
+        var m:Number = millisecondCount - vo.hours * Const.MILLISECONDS_PER_HOUR;
+        vo.minutes = Math.floor(m / Const.MILLISECONDS_PER_MINUTE);
+        
+        m = m - vo.minutes * Const.MILLISECONDS_PER_MINUTE;
+        vo.seconds = Math.floor(m / Const.MILLISECONDS_PER_SECOND);
+        
+        vo.milliseconds = m - vo.seconds * Const.MILLISECONDS_PER_SECOND;
+        
+        return vo;
     }
     
-    public function get minuteCount():Number {
-        return Math.ceil(Util.getMillisecondCount(destination, ref));
+    public function get minuteVo():DateVo {
+        var vo:DateVo = new DateVo();
+        
+        vo.minutes = Math.floor(Util.getMinuteCount(destination, ref));
+        
+        var m:Number = m - vo.minutes * Const.MILLISECONDS_PER_MINUTE;
+        vo.seconds = Math.floor(m / Const.MILLISECONDS_PER_SECOND);
+        
+        vo.milliseconds = m - vo.seconds * Const.MILLISECONDS_PER_SECOND;
+        
+        return vo;
     }
     
-    public function get secondCount():Number {
-        return Math.ceil(Util.getSecondCount(destination, ref));
-    }
-    
-    public function get millisecondCount():Number {
-        return Util.getMillisecondCount(destination, ref);
+    public function get secondVo():DateVo {
+        var vo:DateVo = new DateVo();
+        
+        vo.seconds = Math.floor(Util.getSecondCount(destination, ref));
+        vo.milliseconds = millisecondCount - 
+                            Const.MILLISECONDS_PER_SECOND * vo.seconds;
+        
+        return vo;
     }
 }
 }

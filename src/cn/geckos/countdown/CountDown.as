@@ -40,7 +40,7 @@ public class CountDown{
     }
     
     /**
-     * 返回总毫秒数，向上取整
+     * 返回总毫秒数
      */
     public function get millisecondCount():Number {
         return Util.getMillisecondCount(destination, ref);

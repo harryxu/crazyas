@@ -11,22 +11,37 @@ public class CountDown{
         this.ref = ref || new Date();
     }
     
+    /**
+     * 返回日期总数，向上取整
+     */ 
     public function get dayCount():Number {
         return Math.ceil(Util.getDayCount(destination, ref));
     }
     
+    /**
+     * 返回总天数，向上取整
+     */
     public function get hourCount():Number {
         return Math.ceil(Util.getHourCount(destination, ref));
     }
     
+    /**
+     * 返回总分钟数，向上取整
+     */
     public function get minuteCount():Number {
         return Math.ceil(Util.getMillisecondCount(destination, ref));
     }
     
+    /**
+     * 返回总秒数，向上取整
+     */
     public function get secondCount():Number {
         return Math.ceil(Util.getSecondCount(destination, ref));
     }
     
+    /**
+     * 返回总毫秒数，向上取整
+     */
     public function get millisecondCount():Number {
         return Util.getMillisecondCount(destination, ref);
     }

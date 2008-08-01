@@ -17,8 +17,8 @@ package cn.geckos.layout
 		public static const VERTICAL:String = "vertical";
 		public static const HORIZONTAL :String = "horizontal";
 
-		private var _maxWidth:Number = -1;
-		private var _maxHeight:Number = -1;
+		private var _preferredWidth:Number = -1;
+		private var _preferredHeight:Number = -1;
 		private var _minWidth:Number = -1;
 		private var _minHeight:Number = -1;
 		
@@ -58,16 +58,17 @@ package cn.geckos.layout
 				o = super.contentLayer.getChildAt(i);
 				//trace("content "+o.height+" ", o.width);
 				//trace(this._hGap);
+				//trace(o.name);
 				
-				highest = o.height > highest?o.height:highest;
 				if (i == 0)
 				{
 					o.x = xPosition;
 					o.y = yPosition;
 					xPosition = o.width + this._hGap;
+					highest = o.height;
 				}else
 				{
-					if (this._maxWidth == -1 || o.width + xPosition <= this._maxWidth)
+					if (this._preferredWidth == -1 || o.width + xPosition <= this._preferredWidth)
 					{
 						o.x = xPosition;
 						o.y = yPosition;
@@ -76,9 +77,13 @@ package cn.geckos.layout
 						xPosition = 0;
 						yPosition = yPosition + highest + this._vGap;
 						o.y = yPosition;
+						o.x = xPosition;
+						//trace(yPosition, highest);
 						highest = o.height;
 					}
 					xPosition = xPosition + o.width + this._hGap;
+					highest = o.height > highest?o.height:highest;
+					//trace("highest: "+highest);
 				}
 			}
 		}
@@ -98,15 +103,15 @@ package cn.geckos.layout
 				//trace("content "+o.height+" ", o.width);
 				//trace(this._vGap);
 				
-				widthest = o.width > widthest?o.width:widthest;
 				if (i == 0)
 				{
 					o.x = xPosition;
 					o.y = yPosition;
 					yPosition = o.height + this._vGap;
+					widthest = o.width;
 				}else
 				{
-					if (this._maxHeight == -1 || o.height + yPosition <= this._maxHeight)
+					if (this._preferredHeight == -1 || o.height + yPosition <= this._preferredHeight)
 					{
 						o.x = xPosition;
 						o.y = yPosition;
@@ -115,18 +120,23 @@ package cn.geckos.layout
 						yPosition = 0;
 						xPosition = xPosition + widthest + this._hGap;
 						o.x = xPosition;
+						o.y = yPosition;
 						widthest = o.width;
+						//trace(this._hGap, widthest);
 					}
 					yPosition = yPosition + o.height + this._vGap;
+					widthest = o.width > widthest?o.width:widthest;
 				}
 			}
 		}
 		
 		private function drawMask():void
 		{
-			var dw:Number = this._maxWidth == -1?super.contentLayer.width+2:this._maxWidth;
-			var dh:Number = this._maxHeight == -1?super.contentLayer.height+2:this._maxHeight;
+			var dw:Number = this._preferredWidth == -1?super.contentLayer.width+2:this._preferredWidth;
+			var dh:Number = this._preferredHeight == -1?super.contentLayer.height+2:this._preferredHeight;
 			var g:Graphics = super.maskLayer.graphics;
+			//trace(dw, dh);
+			g.clear();
 			g.beginFill(0xffffff);
 			g.drawRect(0, 0, dw, dh);
 			g.endFill();
@@ -134,8 +144,11 @@ package cn.geckos.layout
 		
 		override public function set width(w:Number):void
 		{
-			super.width = w;
-			this.maxWidth = w;
+			if (this._minWidth == -1 || w >= this._minWidth)
+			{
+				this.preferredWidth = w;
+				//trace("w: "+preferredWidth);
+			}
 		}
 		override public function get width():Number
 		{
@@ -144,44 +157,50 @@ package cn.geckos.layout
 		
 		override public function set height(h:Number):void
 		{
-			super.height = h;
-			this.maxHeight = h;
+			if (this._minHeight == -1 || h >= this._minHeight)
+			{
+				this.preferredHeight = h;
+				//trace("h: "+preferredHeight);
+			}
 		}
 		override public function get height():Number
 		{
 			return super.width;
 		}
 
-		public function set maxWidth(mxW:Number):void
+		public function set preferredWidth(mxW:Number):void
 		{
 			if (mxW > 0 && mxW >= this._minWidth)
 			{
-				this._maxWidth = mxW;
+				this._preferredWidth = mxW;
 				super.requireLayout();
 			}
 		}
-		public function get maxWidth():Number
+		public function get preferredWidth():Number
 		{
-			return this._maxWidth;
+			return this._preferredWidth;
 		}
 		
-		public function set maxHeight(mxH:Number):void
+		public function set preferredHeight(mxH:Number):void
 		{
 			if (mxH > 0 && mxH >= this._minHeight)
 			{
-				this._maxHeight = mxH;
+				this._preferredHeight = mxH;
 				super.requireLayout();
 			}
 		}
-		public function get maxHeight():Number
+		public function get preferredHeight():Number
 		{
-			return this._maxHeight;
+			return this._preferredHeight;
 		}
 
 		public function set minWidth(miW:Number):void
 		{
-			if(miW >= 0)
+			if (miW >= 0)
+			{
 				this._minWidth = miW;
+				super.requireLayout();
+			}
 		}
 		public function get minWidth():Number
 		{
@@ -190,8 +209,11 @@ package cn.geckos.layout
 
 		public function set minHeight(miH:Number):void
 		{
-			if(miH >= 0)
+			if (miH >= 0)
+			{
 				this._minHeight = miH;
+				super.requireLayout();
+			}
 		}
 		public function get minHeight():Number
 		{
@@ -200,8 +222,11 @@ package cn.geckos.layout
 		
 		public function set vGap(v:Number):void
 		{
-			if(this._maxHeight == -1 || (v < this._maxHeight && v >= 0))
+			if (this._preferredHeight == -1 || (v < this._preferredHeight && v >= 0))
+			{
 				this._vGap = v;
+				super.requireLayout();
+			}
 		}
 		public function get vGap():Number
 		{
@@ -210,8 +235,11 @@ package cn.geckos.layout
 		
 		public function set hGap(h:Number):void
 		{
-			if(this._maxWidth == -1 || (h < this._maxWidth && h >= 0))
+			if (this._preferredWidth == -1 || (h < this._preferredWidth && h >= 0))
+			{
 				this._hGap = h;
+				super.requireLayout();
+			}
 		}
 		public function get hGap():Number
 		{
@@ -220,8 +248,11 @@ package cn.geckos.layout
 		
 		public function set direction(d:String):void
 		{
-			if(d == Tile.HORIZONTAL || d == Tile.VERTICAL)
+			if (d == Tile.HORIZONTAL || d == Tile.VERTICAL)
+			{
 				this._direction = d;
+				super.requireLayout();
+			}
 		}
 		public function get direction():String
 		{

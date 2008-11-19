@@ -123,25 +123,22 @@ public class StringFormat
             isDictArg = true;
         }
         
-        var regex:RegExp = /(?<!\\)(\{[^{}]*[^\\]\})/gim;
-        var result:Array = str.match( regex );
+        var pattern:RegExp = /(?<!\\)\{[^{}]*[^\\]\}/gim;
         
-        for each( var s:String in result )
-        {
-            var key:* = s.substring(1, s.length-1);
+        str = str.replace(pattern, function(match:String, ...args):String {
+            var key:* = match.substring(1, match.length - 1);
             if( !isDictArg ) {
                 key = Number(key);
             }
-            
-            s = s.replace(/[{}]/g, '\\$&');
-            str = str.replace(new RegExp(s), sArgs[key]);
-        }
+            return sArgs[key];
+        } );
         
         str = str.replace(/\\{/gm, '{');
         str = str.replace(/\\}/gm, '}');
         
         return str;
     }
+     
 
 }
 }

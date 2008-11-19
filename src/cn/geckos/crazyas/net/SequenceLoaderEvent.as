@@ -1,4 +1,4 @@
-﻿package cn.geckos.net 
+﻿package cn.geckos.crazyas.net 
 {
 	import flash.events.Event;
 	

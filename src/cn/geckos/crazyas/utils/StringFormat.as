@@ -1,4 +1,4 @@
-package cn.geckos.utils
+package cn.geckos.crazyas.utils
 {
 public class StringFormat
 {

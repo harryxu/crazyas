@@ -1,4 +1,4 @@
-package cn.geckos.countdown {
+package cn.geckos.crazyas.countdown {
 public class Const {
     
     public static const MILLISECONDS_PER_DAY:int = 1000*60*60*24;

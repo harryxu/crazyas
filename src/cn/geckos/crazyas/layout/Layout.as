@@ -1,4 +1,4 @@
-﻿package cn.geckos.layout
+﻿package cn.geckos.crazyas.layout
 {
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;

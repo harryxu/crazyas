@@ -1,4 +1,4 @@
-package cn.geckos.countdown {
+package cn.geckos.crazyas.countdown {
     
 public class Util {
     

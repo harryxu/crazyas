@@ -1,5 +1,9 @@
 package cn.geckos.utils
 {
+
+/**
+ *
+ */
 public class Config
 {
     private static const data:Object = {};

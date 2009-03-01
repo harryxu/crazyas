@@ -17,25 +17,43 @@ public class SequenceFileUploader extends EventDispatcher
     private var _requests:Array = [];
     
     private var _uploadingFile:FileReference;
-    
-    private var _isRunning:Boolean;
-    public function get isRunning():Boolean
+    public function get uploadFile():FileReference
     {
-        return _isRunning;
+        return _uploadingFile;
     }
     
+    private var _running:Boolean;
+    public function get running():Boolean
+    {
+        return _running;
+    }
+    
+    /**
+     * Constructor
+     * 
+     */
     public function SequenceFileUploader()
     {
     }
     
+    public function startUpload():void
+    {
+        if( !running ) {
+            _running = true; 
+            run();
+        } 
+    }
+    
+    
     protected function run():void
     {
-        if( !isRunning ) {
+        if( !running ) {
             return;
         }
         
         if( _files.length < 1 ) {
-            _isRunning = false;
+            _running = false;
+            _uploadingFile = null;
             dispatchEvent(new Event(Event.COMPLETE));
             return;
         }
@@ -57,7 +75,7 @@ public class SequenceFileUploader extends EventDispatcher
         _files.push(file);
         _requests.push({
 	          'request': uploadRequest,
-            'filedName': fieldName
+            'fieldName': fieldName
         });
     }
     
@@ -72,7 +90,7 @@ public class SequenceFileUploader extends EventDispatcher
             // TODO
             if( file == _uploadingFile ) {
                 file.cancel();
-                // run next
+                run();
             }
         }
     }

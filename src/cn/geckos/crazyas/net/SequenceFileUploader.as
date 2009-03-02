@@ -79,9 +79,8 @@ public class SequenceFileUploader extends EventDispatcher
         }
         else {
             _uploadingFile = _files[0]
-            _uploadingFile.addEventListener(Event.COMPLETE, fileUploadCompleteHandler);
+            addFileListeners(_uploadingFile);
             
-            var data:Object = _requests.shift();
             _uploadingFile.upload(URLRequest(_requests[0]), _fields[0]);
             
             dispatchEvent(new Event(Event.CHANGE));

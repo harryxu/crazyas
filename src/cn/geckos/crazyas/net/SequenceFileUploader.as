@@ -2,22 +2,28 @@ package cn.geckos.crazyas.net
 {
 import flash.events.Event;
 import flash.events.EventDispatcher;
+import flash.events.IOErrorEvent;
 import flash.net.FileReference;
 import flash.net.URLRequest;
-
+/**
+ * 队列上传
+ * @author harry
+ * 
+ */
 public class SequenceFileUploader extends EventDispatcher
 {
     private var _files:Array = [];
+    private var _requests:Array = [];
+    private var _fields:Array = [];
     
     public function get length():int
     {
         return _files.length;
     }
     
-    private var _requests:Array = [];
     
     private var _uploadingFile:FileReference;
-    public function get uploadFile():FileReference
+    public function get uploadingFile():FileReference
     {
         return _uploadingFile;
     }
@@ -36,12 +42,26 @@ public class SequenceFileUploader extends EventDispatcher
     {
     }
     
-    public function startUpload():void
+    /**
+     * 开始上传
+     * 
+     */
+    public function start():void
     {
         if( !running ) {
             _running = true; 
             run();
-        } 
+        }
+    }
+    
+    /**
+     * 停止上传
+     * 
+     */
+    public function stop():void
+    {
+        uploadingFile.cancel();
+        _running = false;
     }
     
     
@@ -58,41 +78,83 @@ public class SequenceFileUploader extends EventDispatcher
             return;
         }
         else {
-            _uploadingFile = _files.shift();
-            _uploadingFile.addEventListener(Event.COMPLETE,
-                function(e:Event):void{ run(); }
-            );
+            _uploadingFile = _files[0]
+            _uploadingFile.addEventListener(Event.COMPLETE, fileUploadCompleteHandler);
             
             var data:Object = _requests.shift();
-            _uploadingFile.upload(URLRequest(data['request']), data['fieldName']);
+            _uploadingFile.upload(URLRequest(_requests[0]), _fields[0]);
             
             dispatchEvent(new Event(Event.CHANGE));
         }
     }
     
-    public function addFile(file:FileReference, uploadRequest:URLRequest, fieldName:String):void
+    private function fileUploadCompleteHandler(event:Event):void
     {
-        _files.push(file);
-        _requests.push({
-	          'request': uploadRequest,
-            'fieldName': fieldName
-        });
+        var file:FileReference = FileReference( _files.shift() );
+        removeFileListeners(file);
+        
+        _requests.shift();
+        _fields.shift();
+        
+        run();
     }
     
-    public function removeFile(file:FileReference):void
+    /**
+     * 文件上传出现错误后将直接发出错误时间并且停止上传
+     */
+    private function fileUploadErrorHandler(event:Event):void
     {
-        var index:int = _files.indexOf(file);
-        if( index > -1 ) {
+        dispatchEvent(event);
+        _running = false;
+    }
+    
+    public function addFile(file:FileReference, request:URLRequest, fieldName:String):void
+    {
+        _files.push(file);
+        _requests.push(request);
+        _fields.push(fieldName);
+    }
+    
+    /**
+     * 移除要进行上传的文件，如果该文件正在上传中，文件的 cancel() 将会被调用
+     * @param file
+     * @param request
+     * 
+     */
+    public function removeFile(file:FileReference, request:URLRequest=null):void
+    {
+        var index:int;
+        
+        while( (index = _files.indexOf(file)) > -1 )
+        {
+            if( request && _requests[index] != request ) {
+                continue;
+            }
+            
             var file:FileReference = FileReference( _files[index] );
+            removeFileListeners(file);
+            
             _files.splice(index, 1);
             _requests.splice(index, 1);
+            _fields.splice(index, 1);
             
-            // TODO
             if( file == _uploadingFile ) {
                 file.cancel();
                 run();
             }
         }
+    }
+    
+    private function addFileListeners(file:FileReference):void
+    {
+        file.addEventListener(Event.COMPLETE, fileUploadCompleteHandler);
+        file.addEventListener(IOErrorEvent.IO_ERROR, fileUploadErrorHandler);
+    }
+    
+    private function removeFileListeners(file:FileReference):void
+    {
+        file.removeEventListener(Event.COMPLETE, fileUploadCompleteHandler);
+        file.removeEventListener(IOErrorEvent.IO_ERROR, fileUploadErrorHandler);
     }
         
 }
